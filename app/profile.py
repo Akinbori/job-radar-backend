@@ -1,119 +1,46 @@
-TARGET_ROLES = [
-    "lifecycle marketing manager",
-    "email marketing manager",
-    "crm marketing manager",
-    "retention marketing manager",
-    "content marketing manager",
-    "content strategist",
-    "content strategy lead",
-    "content lead",
-    "head of content",
-    "founder content lead",
-    "thought leadership lead",
-    "newsletter strategist",
-    "seo content manager",
-    "demand generation manager",
-    "growth marketing manager",
-    "gtm strategist",
-    "growth strategist",
-]
+from dataclasses import dataclass, field
 
-INCLUDE_KEYWORDS = [
-    "content",
-    "content marketing",
-    "content strategy",
-    "content lead",
-    "head of content",
-    "founder content",
-    "founder-led content",
-    "thought leadership",
-    "ghostwriting",
-    "linkedin",
-    "newsletter",
-    "editorial",
-    "seo content",
-    "b2b content",
-    "lifecycle",
-    "email marketing",
-    "crm",
-    "retention",
-    "demand generation",
-    "demand gen",
-    "growth marketing",
-    "gtm",
-    "go-to-market",
-    "audience",
-    "segmentation",
-    "organic growth",
-]
+@dataclass(slots=True)
+class SearchProfile:
+    candidate_name: str = "Bayo Hassan Adesokan"
+    email: str = "bayo.adesokan9@gmail.com"
+    preferred_salary_min_usd: int = 36000
+    preferred_salary_max_usd: int = 80000
+    must_be_fully_remote: bool = True
+    base_location: str = "Nigeria"
 
-EXCLUDE_KEYWORDS = [
-    "content moderator",
-    "moderation",
-    "content reviewer",
-    "trust and safety",
-    "ugc creator",
-    "video editor",
-    "social media intern",
-    "internship",
-    "unpaid",
-    "commission only",
-    "equity only",
-    "onsite",
-    "on-site",
-    "hybrid",
-    "must be based in the us",
-    "us only",
-    "u.s. only",
-    "united states only",
-    "uk only",
-    "must be based in the uk",
-]
+    target_roles: list[str] = field(default_factory=lambda: [
+        "Lifecycle/Email Marketing Manager", "Email Marketing Manager",
+        "Content Marketing Manager", "Content Strategist", "Content Lead",
+        "Head of Content", "Founder Content Lead", "Thought Leadership Lead",
+        "Newsletter Strategist", "SEO Content Manager", "Demand Gen Manager",
+        "Growth Marketing Manager", "GTM Strategist"
+    ])
 
-REMOTE_POSITIVE_KEYWORDS = [
-    "remote",
-    "remote worldwide",
-    "fully remote",
-    "global remote",
-    "work from anywhere",
-    "anywhere",
-    "distributed team",
-]
+    functional_keywords: list[str] = field(default_factory=lambda: [
+        "content", "content marketing", "content strategy", "founder content",
+        "thought leadership", "newsletter", "editorial", "seo content",
+        "lifecycle", "email marketing", "crm", "retention", "demand gen",
+        "growth marketing", "gtm", "segmentation", "organic growth"
+    ])
 
-REMOTE_NEGATIVE_KEYWORDS = [
-    "hybrid",
-    "onsite",
-    "on-site",
-    "office-based",
-    "must be based in",
-    "us only",
-    "uk only",
-]
+    excluded_geo_terms: list[str] = field(default_factory=lambda: [
+        "us only", "united states only", "u.s. only", "uk only",
+        "must be based in uk", "must be based in us", "canada only",
+        "europe only", "eu only", "hybrid", "onsite", "on-site"
+    ])
 
-SALARY_MIN_USD = 36000
-SALARY_TARGET_MIN_USD = 50000
-SALARY_TARGET_MAX_USD = 80000
+    accepted_employment_types: list[str] = field(default_factory=lambda: [
+        "full-time", "contract", "freelance", "fractional", "part-time"
+    ])
 
-KEEP_HIGHER_THAN_TARGET = True
-ALLOW_MISSING_SALARY_IF_STRONG_FIT = True
+    evidence_points: list[str] = field(default_factory=lambda: [
+        "Improved email open rates from 40-50% to 65%",
+        "Built email campaign that generated USD 10k and 54 sales calls",
+        "Segmented a 1.2M email list",
+        "Built Reddit acquisition strategy that generated organic clients",
+        "Took B2B founder to 80k LinkedIn impressions",
+        "Generated inbound lead that became a USD 20k contract"
+    ])
 
-FRESHNESS_DAYS = 3
-
-LOCATION_RULES = {
-    "fully_remote_only": True,
-    "allow_worldwide": True,
-    "allow_nigeria": True,
-    "reject_us_only": True,
-    "reject_uk_only": True,
-    "reject_geo_locked": True,
-}
-
-PROFILE_SUMMARY = """
-Bayo is a B2B content and growth marketer focused on lifecycle/email,
-content marketing, demand generation, founder-led growth, thought leadership,
-organic acquisition, newsletters, segmentation, and GTM copywriting.
-
-Prioritize remote roles that fit these strengths, including both formal job
-posts and informal hiring signals where someone is looking for content,
-email, lifecycle, growth, or founder-led marketing help.
-"""
+PROFILE = SearchProfile()
