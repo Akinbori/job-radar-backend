@@ -12,11 +12,19 @@ from .scoring import OpportunityScorer
 SALARY_RE = re.compile(r"\$?(\d{2,3}(?:,\d{3})+|\d{2,3}k)", re.I)
 
 INCLUDE_KEYWORDS = [
-    "content", "seo", "growth", "lifecycle", "email", "demand",
-    "marketing", "copy", "newsletter", "editorial", "ghostwriter",
-    "thought leadership", "crm", "retention", "go-to-market", "gtm"
+    "content marketing",
+    "content marketer",
+    "marketing manager",
+    "growth marketing",
+    "growth marketer",
+    "lifecycle marketing",
+    "email marketing",
+    "crm marketing",
+    "demand generation",
+    "demand gen",
+    "b2b marketing",
+    "saas marketing",
 ]
-
 EXCLUDE_KEYWORDS = [
     "engineer", "developer", "finance", "fp&a", "legal", "accounting",
     "sales development", "sdr", "customer support", "designer", "product manager"
