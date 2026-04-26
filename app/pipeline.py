@@ -16,6 +16,7 @@ INCLUDE_KEYWORDS = [
     "content marketer",
     "marketing manager",
     "growth marketing",
+    "b2c marketing",
     "growth marketer",
     "lifecycle marketing",
     "email marketing",
