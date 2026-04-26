@@ -21,6 +21,20 @@ DEFAULT_GREENHOUSE_BOARDS = [
     "helpscout",
     "activecampaign",
     "braze",
+
+    # ADD THESE
+    "notion",
+    "stripe",
+    "figma",
+    "zapier",
+    "intercom",
+    "canva",
+    "aircall",
+    "hubspot",
+    "convertkit",
+    "beehiiv",
+    "ghost",
+    "buffer",
 ]
 
 DEFAULT_LEVER_COMPANIES = [
@@ -37,8 +51,12 @@ DEFAULT_LEVER_COMPANIES = [
     "apollo",
     "clearbit",
     "webflow",
-]
 
+    # ADD THESE
+    "notion",
+    "stripe",
+    "figma",
+]
 
 def _split_env(name: str) -> list[str]:
     raw = os.getenv(name, "")
