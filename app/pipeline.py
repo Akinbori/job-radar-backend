@@ -8,8 +8,22 @@ import re
 from .models import Opportunity, RawItem
 from .scoring import OpportunityScorer
 
-
 SALARY_RE = re.compile(r"\$?(\d{2,3}(?:,\d{3})+|\d{2,3}k)", re.I)
+
+INCLUDE = [
+    "content", "content marketing", "content strategy", "content strategist",
+    "content lead", "head of content", "seo", "newsletter", "editorial",
+    "copywriter", "copywriting", "lifecycle", "email marketing", "crm",
+    "retention", "demand gen", "demand generation", "growth marketing",
+    "gtm", "go-to-market", "thought leadership", "founder content"
+]
+
+EXCLUDE = [
+    "engineer", "developer", "software", "frontend", "backend", "data scientist",
+    "fp&a", "finance", "accounting", "legal", "counsel", "sales development",
+    "sdr", "account executive", "customer support", "content moderator",
+    "moderation", "trust and safety", "intern", "video editor"
+]
 
 
 @dataclass(slots=True)
@@ -20,24 +34,27 @@ class Pipeline:
         if not salary_text:
             return None, None
         matches = SALARY_RE.findall(salary_text)
-        values: list[int] = []
+        values = []
         for raw in matches[:2]:
             cleaned = raw.lower().replace(",", "")
-            if cleaned.endswith("k"):
-                values.append(int(cleaned[:-1]) * 1000)
-            else:
-                values.append(int(cleaned))
+            values.append(int(cleaned[:-1]) * 1000 if cleaned.endswith("k") else int(cleaned))
         if not values:
             return None, None
-        if len(values) == 1:
-            return values[0], values[0]
-        return min(values), max(values)
+        return (values[0], values[0]) if len(values) == 1 else (min(values), max(values))
+
+    def is_relevant(self, raw: RawItem) -> bool:
+        text = f"{raw.title} {raw.body} {raw.location} {raw.remote_text}".lower()
+
+        if any(bad in text for bad in EXCLUDE):
+            return False
+
+        return any(good in text for good in INCLUDE)
 
     def infer_signal_type(self, raw: RawItem) -> str:
         if raw.source_type in {"ats", "job_board"}:
             return "formal_opening"
-        body = f"{raw.title} {raw.body}".lower()
-        if any(token in body for token in ["looking for", "need a", "hiring", "seeking"]):
+        text = f"{raw.title} {raw.body}".lower()
+        if any(x in text for x in ["looking for", "need a", "hiring", "seeking"]):
             return "informal_hiring_post"
         return "warm_outbound_target"
 
@@ -45,11 +62,7 @@ class Pipeline:
         if score >= 85:
             return "high", "apply_now" if signal_type == "formal_opening" else "send_outreach"
         if score >= 70:
-            if signal_type == "formal_opening":
-                return "medium", "apply_now"
-            if signal_type == "informal_hiring_post":
-                return "medium", "send_outreach"
-            return "medium", "monitor"
+            return "medium", "apply_now" if signal_type == "formal_opening" else "send_outreach"
         return "low", "discard"
 
     def normalize(self, raw: RawItem) -> Opportunity:
@@ -59,6 +72,7 @@ class Pipeline:
         priority, action = self.decide_action(breakdown.total, signal_type)
         key = f"{raw.company.lower()}::{raw.title.lower()}::{raw.url}"
         opp_id = hashlib.sha1(key.encode("utf-8")).hexdigest()[:12]
+
         return Opportunity(
             id=opp_id,
             date_found=datetime.now(timezone.utc),
@@ -81,14 +95,17 @@ class Pipeline:
             eligibility_risk=risk,
             apply_priority=priority,
             recommended_action=action,
-            notes="generated from MVP pipeline",
+            notes="filtered for Bayo profile",
         )
 
     def dedupe(self, opportunities: list[Opportunity]) -> list[Opportunity]:
+        filtered = [opp for opp in opportunities if opp.recommended_action != "discard"]
+
         seen: dict[tuple[str, str], Opportunity] = {}
-        for opp in opportunities:
+        for opp in filtered:
             key = (opp.company.strip().lower(), opp.job_title.strip().lower())
             existing = seen.get(key)
             if existing is None or opp.score > existing.score:
                 seen[key] = opp
+
         return sorted(seen.values(), key=lambda item: item.score, reverse=True)
