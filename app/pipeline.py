@@ -14,9 +14,9 @@ SALARY_RE = re.compile(r"\$?(\d{2,3}(?:,\d{3})+|\d{2,3}k)", re.I)
 INCLUDE_KEYWORDS = [
     "content marketing",
     "content marketer",
+    "content manager",
     "marketing manager",
     "growth marketing",
-    "b2c marketing",
     "growth marketer",
     "lifecycle marketing",
     "email marketing",
@@ -25,12 +25,30 @@ INCLUDE_KEYWORDS = [
     "demand gen",
     "b2b marketing",
     "saas marketing",
-]
-EXCLUDE_KEYWORDS = [
-    "engineer", "developer", "finance", "fp&a", "legal", "accounting",
-    "sales development", "sdr", "customer support", "designer", "product manager"
+    "newsletter marketing",
 ]
 
+EXCLUDE_KEYWORDS = [
+    "ugc",
+    "creator",
+    "influencer",
+    "community",
+    "enablement",
+    "program manager",
+    "education",
+    "learning",
+    "evangelist",
+    "content moderator",
+    "video editor",
+    "engineer",
+    "developer",
+    "finance",
+    "fp&a",
+    "legal",
+    "accounting",
+    "sdr",
+    "sales development",
+]
 
 @dataclass(slots=True)
 class Pipeline:
