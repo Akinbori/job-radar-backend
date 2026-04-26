@@ -1,12 +1,10 @@
 import os
 
 from .live_sources import GreenhouseBoardAdapter, LeverPostingsAdapter
+from .social_sources import RedditHiringSignalAdapter, HackerNewsHiringSignalAdapter
 
 
 DEFAULT_GREENHOUSE_BOARDS = [
-    "zapier",
-    "automattic",
-    "buffer",
     "gitlab",
     "webflow",
     "calendly",
@@ -21,7 +19,6 @@ DEFAULT_GREENHOUSE_BOARDS = [
     "klaviyo",
     "customerio",
     "helpscout",
-    "convertkit",
     "activecampaign",
     "braze",
 ]
@@ -33,7 +30,6 @@ DEFAULT_LEVER_COMPANIES = [
     "supabase",
     "linear",
     "vercel",
-    "zapier",
     "loom",
     "pilot",
     "ashbyhq",
@@ -60,5 +56,8 @@ def build_default_adapters():
 
     for company in lever_companies:
         adapters.append(LeverPostingsAdapter(company_handle=company))
+
+    adapters.append(RedditHiringSignalAdapter())
+    adapters.append(HackerNewsHiringSignalAdapter())
 
     return adapters
