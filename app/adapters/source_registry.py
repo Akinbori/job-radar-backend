@@ -2,6 +2,7 @@ import os
 
 from .live_sources import GreenhouseBoardAdapter, LeverPostingsAdapter
 from .social_sources import RedditHiringSignalAdapter, HackerNewsHiringSignalAdapter
+from .search_sources import SerpApiHiringSignalAdapter
 
 
 DEFAULT_GREENHOUSE_BOARDS = [
@@ -21,19 +22,8 @@ DEFAULT_GREENHOUSE_BOARDS = [
     "helpscout",
     "activecampaign",
     "braze",
-
-    # ADD THESE
-    "notion",
-    "stripe",
-    "figma",
-    "zapier",
-    "intercom",
-    "canva",
-    "aircall",
+    "typeform",
     "hubspot",
-    "convertkit",
-    "beehiiv",
-    "ghost",
     "buffer",
 ]
 
@@ -51,12 +41,8 @@ DEFAULT_LEVER_COMPANIES = [
     "apollo",
     "clearbit",
     "webflow",
-
-    # ADD THESE
-    "notion",
-    "stripe",
-    "figma",
 ]
+
 
 def _split_env(name: str) -> list[str]:
     raw = os.getenv(name, "")
@@ -77,5 +63,6 @@ def build_default_adapters():
 
     adapters.append(RedditHiringSignalAdapter())
     adapters.append(HackerNewsHiringSignalAdapter())
+    adapters.append(SerpApiHiringSignalAdapter())
 
     return adapters
