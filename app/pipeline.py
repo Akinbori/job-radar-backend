@@ -8,21 +8,18 @@ import re
 from .models import Opportunity, RawItem
 from .scoring import OpportunityScorer
 
+
 SALARY_RE = re.compile(r"\$?(\d{2,3}(?:,\d{3})+|\d{2,3}k)", re.I)
 
-INCLUDE = [
-    "content", "content marketing", "content strategy", "content strategist",
-    "content lead", "head of content", "seo", "newsletter", "editorial",
-    "copywriter", "copywriting", "lifecycle", "email marketing", "crm",
-    "retention", "demand gen", "demand generation", "growth marketing",
-    "gtm", "go-to-market", "thought leadership", "founder content"
+INCLUDE_KEYWORDS = [
+    "content", "seo", "growth", "lifecycle", "email", "demand",
+    "marketing", "copy", "newsletter", "editorial", "ghostwriter",
+    "thought leadership", "crm", "retention", "go-to-market", "gtm"
 ]
 
-EXCLUDE = [
-    "engineer", "developer", "software", "frontend", "backend", "data scientist",
-    "fp&a", "finance", "accounting", "legal", "counsel", "sales development",
-    "sdr", "account executive", "customer support", "content moderator",
-    "moderation", "trust and safety", "intern", "video editor"
+EXCLUDE_KEYWORDS = [
+    "engineer", "developer", "finance", "fp&a", "legal", "accounting",
+    "sales development", "sdr", "customer support", "designer", "product manager"
 ]
 
 
@@ -42,14 +39,6 @@ class Pipeline:
             return None, None
         return (values[0], values[0]) if len(values) == 1 else (min(values), max(values))
 
-    def is_relevant(self, raw: RawItem) -> bool:
-        text = f"{raw.title} {raw.body} {raw.location} {raw.remote_text}".lower()
-
-        if any(bad in text for bad in EXCLUDE):
-            return False
-
-        return any(good in text for good in INCLUDE)
-
     def infer_signal_type(self, raw: RawItem) -> str:
         if raw.source_type in {"ats", "job_board"}:
             return "formal_opening"
@@ -58,12 +47,26 @@ class Pipeline:
             return "informal_hiring_post"
         return "warm_outbound_target"
 
+    def is_relevant(self, opp: Opportunity) -> bool:
+        text = f"{opp.job_title} {opp.company} {opp.location} {opp.remote_status}".lower()
+
+        if any(x in text for x in EXCLUDE_KEYWORDS):
+            return False
+
+        if not any(k in text for k in INCLUDE_KEYWORDS):
+            return False
+
+        if opp.salary_min_usd is not None and opp.salary_min_usd < 36000:
+            return False
+
+        return True
+
     def decide_action(self, score: int, signal_type: str) -> tuple[str, str]:
         if score >= 85:
             return "high", "apply_now" if signal_type == "formal_opening" else "send_outreach"
         if score >= 70:
             return "medium", "apply_now" if signal_type == "formal_opening" else "send_outreach"
-        return "low", "discard"
+        return "low", "monitor"
 
     def normalize(self, raw: RawItem) -> Opportunity:
         salary_min, salary_max = self.parse_salary(raw.salary_text)
@@ -95,17 +98,16 @@ class Pipeline:
             eligibility_risk=risk,
             apply_priority=priority,
             recommended_action=action,
-            notes="filtered for Bayo profile",
+            notes="generated from MVP pipeline",
         )
 
     def dedupe(self, opportunities: list[Opportunity]) -> list[Opportunity]:
-        filtered = [opp for opp in opportunities if opp.recommended_action != "discard"]
-
-        seen: dict[tuple[str, str], Opportunity] = {}
-        for opp in filtered:
+        seen = {}
+        for opp in opportunities:
+            if not self.is_relevant(opp):
+                continue
             key = (opp.company.strip().lower(), opp.job_title.strip().lower())
             existing = seen.get(key)
             if existing is None or opp.score > existing.score:
                 seen[key] = opp
-
         return sorted(seen.values(), key=lambda item: item.score, reverse=True)
