@@ -78,7 +78,9 @@ class Pipeline:
 
         for raw in matches[:2]:
             cleaned = raw.lower().replace(",", "")
-            values.append(int(cleaned[:-1]) * 1000 if cleaned.endswith("k") else int(cleaned))
+            values.append(
+                int(cleaned[:-1]) * 1000 if cleaned.endswith("k") else int(cleaned)
+            )
 
         if not values:
             return None, None
@@ -121,7 +123,9 @@ class Pipeline:
 
     def normalize(self, raw: RawItem) -> Opportunity:
         salary_min, salary_max = self.parse_salary(raw.salary_text)
-        breakdown, match_reason, risk, salary_conf = self.scorer.score(raw, salary_min, salary_max)
+        breakdown, match_reason, risk, salary_conf = self.scorer.score(
+            raw, salary_min, salary_max
+        )
         signal_type = self.infer_signal_type(raw)
         priority, action = self.decide_action(breakdown.total, signal_type)
 
@@ -175,5 +179,3 @@ class Pipeline:
                 seen[key] = opp
 
         return sorted(seen.values(), key=lambda item: item.score, reverse=True)
-
-
