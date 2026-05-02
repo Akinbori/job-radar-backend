@@ -144,6 +144,7 @@ class Pipeline:
             salary_confidence=salary_conf,
             source=raw.source,
             source_type=raw.source_type,
+            source_category="verified" if raw.source_type in {"ats", "job_board"} else "lead",
             signal_type=signal_type,
             job_url=raw.url,
             application_url=raw.url,
