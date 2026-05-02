@@ -166,7 +166,7 @@ class Pipeline:
             key = (
                 opp.company.strip().lower(),
                 opp.job_title.strip().lower(),
-                opp.job_url.strip().lower(),
+                str(opp.job_url).strip().lower(),
             )
 
             existing = seen.get(key)
