@@ -4,8 +4,24 @@ from typing import Literal, Optional
 from pydantic import BaseModel, Field, HttpUrl
 
 
-SourceType = Literal["ats", "job_board", "social_post", "portfolio_page", "community", "manual"]
-SignalType = Literal["formal_opening", "informal_hiring_post", "portfolio_lead", "warm_outbound_target"]
+SourceType = Literal[
+    "ats",
+    "job_board",
+    "social_post",
+    "portfolio_page",
+    "community",
+    "manual",
+]
+
+SignalType = Literal[
+    "formal_opening",
+    "informal_hiring_post",
+    "portfolio_lead",
+    "warm_outbound_target",
+]
+
+SourceCategory = Literal["verified", "lead"]
+
 ActionType = Literal["apply_now", "send_outreach", "monitor", "discard"]
 PriorityType = Literal["high", "medium", "low"]
 SalaryConfidence = Literal["high", "medium", "low", "unknown"]
@@ -41,6 +57,7 @@ class Opportunity(BaseModel):
     salary_confidence: SalaryConfidence = "unknown"
     source: str
     source_type: SourceType
+    source_category: SourceCategory = "lead"
     signal_type: SignalType
     job_url: HttpUrl
     application_url: HttpUrl
