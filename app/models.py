@@ -36,7 +36,8 @@ class RawItem(BaseModel):
     body: str = ""
     company: str = "unknown"
     author: Optional[str] = None
-    posted_at: datetime
+    posted_at: Optional[datetime] = None   # changed
+    date_found: Optional[datetime] = None  # added
     location: str = "unknown"
     remote_text: str = "unknown"
     salary_text: Optional[str] = None
