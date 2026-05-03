@@ -55,6 +55,7 @@ class Repository:
             "salary_confidence": row.salary_confidence,
             "source": row.source,
             "source_type": row.source_type,
+            "source_category": row.source_category or "lead",
             "signal_type": row.signal_type,
             "job_url": row.job_url,
             "application_url": row.application_url,
