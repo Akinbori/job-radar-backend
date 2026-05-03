@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
 import httpx
 
@@ -20,25 +20,29 @@ BLOCKED_TERMS = [
     "noida",
 ]
 
-SEARCH_QUERIES = [
-    'site:linkedin.com/posts ("we are hiring" OR "I am hiring" OR "we\'re hiring") ("content marketer" OR "growth marketer" OR "email marketer" OR "lifecycle marketer") -India',
-    'site:linkedin.com/posts ("looking for" OR "know anyone" OR "referral") ("content marketer" OR "growth marketer" OR "marketing manager") remote -India',
-    'site:x.com ("we are hiring" OR "I am hiring" OR "we\'re hiring") ("content marketer" OR "growth marketer" OR "email marketer") -India',
-    'site:twitter.com ("looking for" OR "know anyone" OR "hiring") ("content marketer" OR "growth marketer" OR "lifecycle marketer") remote -India',
-    '"looking for a content marketer" remote -India',
-    '"hiring content marketer" remote -India',
-    '"looking for a growth marketer" remote -India',
-    '"hiring growth marketer" remote -India',
-    '"hiring email marketer" remote -India',
-    '"lifecycle marketing" "hiring" remote -India',
-    '"demand generation" "hiring" remote -India',
-    '"marketing manager" "remote" "hiring" -India',
-]
-
 
 def _is_blocked(text: str) -> bool:
     lowered = text.lower()
     return any(term in lowered for term in BLOCKED_TERMS)
+
+
+def build_search_queries() -> list[str]:
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%d")
+
+    return [
+        f'site:linkedin.com/posts ("we are hiring" OR "I am hiring" OR "we\'re hiring") ("content marketer" OR "growth marketer" OR "email marketer" OR "lifecycle marketer") after:{cutoff} -India',
+        f'site:linkedin.com/posts ("looking for" OR "know anyone" OR "referral") ("content marketer" OR "growth marketer" OR "marketing manager") remote after:{cutoff} -India',
+        f'site:x.com ("we are hiring" OR "I am hiring" OR "we\'re hiring") ("content marketer" OR "growth marketer" OR "email marketer") after:{cutoff} -India',
+        f'site:twitter.com ("looking for" OR "know anyone" OR "hiring") ("content marketer" OR "growth marketer" OR "lifecycle marketer") remote after:{cutoff} -India',
+        f'"looking for a content marketer" remote after:{cutoff} -India',
+        f'"hiring content marketer" remote after:{cutoff} -India',
+        f'"looking for a growth marketer" remote after:{cutoff} -India',
+        f'"hiring growth marketer" remote after:{cutoff} -India',
+        f'"hiring email marketer" remote after:{cutoff} -India',
+        f'"lifecycle marketing" "hiring" remote after:{cutoff} -India',
+        f'"demand generation" "hiring" remote after:{cutoff} -India',
+        f'"marketing manager" "remote" "hiring" after:{cutoff} -India',
+    ]
 
 
 class SerpApiHiringSignalAdapter:
@@ -54,7 +58,7 @@ class SerpApiHiringSignalAdapter:
         items: list[RawItem] = []
 
         with httpx.Client(timeout=30.0) as client:
-            for query in SEARCH_QUERIES:
+            for query in build_search_queries():
                 try:
                     response = client.get(
                         "https://serpapi.com/search.json",
@@ -93,7 +97,8 @@ class SerpApiHiringSignalAdapter:
                             title=title,
                             body=snippet,
                             company="unknown",
-                            posted_at=datetime.now(timezone.utc),
+                            posted_at=None,  # CRITICAL FIX: don't fake freshness
+                            date_found=datetime.now(timezone.utc),  # track discovery time
                             location="remote/global preferred",
                             remote_text="remote/global preferred",
                             salary_text=None,
