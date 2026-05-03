@@ -1,8 +1,4 @@
 
-from .database import run_migrations
-
-run_migrations()
-
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -15,12 +11,14 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
 from .config import settings
-from .database import Base, engine, get_db
+from .database import Base, engine, get_db, run_migrations
 from .models import DashboardResponse, ScanResponse, ScanRunSummary
 from .repository import Repository
 from .services import RadarService
 
+
 Base.metadata.create_all(bind=engine)
+run_migrations()
 
 app = FastAPI(title=settings.app_name)
 app.add_middleware(
