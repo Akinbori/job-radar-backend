@@ -97,7 +97,7 @@ class SerpApiHiringSignalAdapter:
                             title=title,
                             body=snippet,
                             company="unknown",
-                            posted_at=datetime.now(timezone.utc),  # CRITICAL FIX: don't fake freshness
+                            posted_at=None,  # CRITICAL FIX: don't fake freshness
                             date_found=datetime.now(timezone.utc),  # track discovery time
                             location="remote/global preferred",
                             remote_text="remote/global preferred",
