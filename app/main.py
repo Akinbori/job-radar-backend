@@ -1,3 +1,8 @@
+
+from .database import run_migrations
+
+run_migrations()
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
