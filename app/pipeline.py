@@ -137,7 +137,7 @@ class Pipeline:
         return Opportunity(
             id=opp_id,
             date_found=datetime.now(timezone.utc),
-            posted_date=raw.posted_at,
+            posted_date=raw.posted_at or raw.date_found or datetime.now(timezone.utc),
             company=company,
             job_title=clean_job_title,
             employment_type=raw.employment_type,
