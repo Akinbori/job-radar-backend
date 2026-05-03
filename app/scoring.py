@@ -63,18 +63,22 @@ class OpportunityScorer:
             return 10, "medium"
         return 0, "high"
 
-    def _recency(self, posted_at: datetime) -> int:
-        now = datetime.now(timezone.utc)
-        delta_days = (now - posted_at.astimezone(timezone.utc)).days
-        if delta_days <= 0:
-            return 10
-        if delta_days == 1:
-            return 8
-        if delta_days == 2:
-            return 6
-        if delta_days == 3:
-            return 4
+    def _recency(self, posted_at: datetime | None) -> int:
+    if not posted_at:
         return 0
+
+    now = datetime.now(timezone.utc)
+    delta_days = (now - posted_at.astimezone(timezone.utc)).days
+
+    if delta_days <= 0:
+        return 10
+    if delta_days == 1:
+        return 8
+    if delta_days == 2:
+        return 6
+    if delta_days == 3:
+        return 4
+    return 0
 
     def _conversion_velocity(self, raw: RawItem) -> int:
         text = f"{raw.title} {raw.body}".lower()
