@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 from .config import settings
@@ -18,3 +18,15 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# --- MIGRATION FIX ---
+def run_migrations():
+    with engine.begin() as conn:
+        columns = conn.execute(text("PRAGMA table_info(opportunities)")).fetchall()
+        column_names = [col[1] for col in columns]
+
+        if "source_category" not in column_names:
+            conn.execute(
+                text("ALTER TABLE opportunities ADD COLUMN source_category VARCHAR(32) NOT NULL DEFAULT 'lead'")
+            )
