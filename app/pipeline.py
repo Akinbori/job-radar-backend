@@ -131,7 +131,9 @@ class Pipeline:
 
         clean_job_title = self.clean_title(raw.title)
         company = raw.company or "unknown"
-        key = f"{company.lower()}::{clean_job_title.lower()}::{raw.url}"
+
+        # FIX: include source in key to avoid collisions
+        key = f"{company.lower()}::{clean_job_title.lower()}::{raw.url}::{raw.source}"
         opp_id = hashlib.sha1(key.encode("utf-8")).hexdigest()[:12]
 
         return Opportunity(
