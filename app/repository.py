@@ -27,20 +27,33 @@ class Repository:
 
     def upsert_opportunities(self, opportunities: list[Opportunity]) -> None:
         for opp in opportunities:
-            existing = self.db.get(OpportunityRecord, opp.id)
             payload = opp.model_dump()
             payload["job_url"] = str(payload["job_url"])
             payload["application_url"] = str(payload["application_url"])
+
+            existing = self.db.execute(
+                select(OpportunityRecord).where(OpportunityRecord.id == opp.id)
+            ).scalar_one_or_none()
+
             if existing:
                 for key, value in payload.items():
                     setattr(existing, key, value)
             else:
                 self.db.add(OpportunityRecord(**payload))
-        self.db.commit()
+
+        try:
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
 
     def list_opportunities(self, limit: int = 100) -> list[Opportunity]:
-        stmt = select(OpportunityRecord).order_by(OpportunityRecord.score.desc(), OpportunityRecord.posted_date.desc()).limit(limit)
+        stmt = select(OpportunityRecord).order_by(
+            OpportunityRecord.score.desc(),
+            OpportunityRecord.posted_date.desc(),
+        ).limit(limit)
+
         rows = self.db.execute(stmt).scalars().all()
+
         return [Opportunity.model_validate({
             "id": row.id,
             "date_found": row.date_found,
