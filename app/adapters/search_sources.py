@@ -29,46 +29,14 @@ def _is_blocked(text: str) -> bool:
 def build_search_queries() -> list[str]:
     cutoff = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%d")
 
-    roles = [
-        "content marketer",
-        "content marketing manager",
-        "growth marketer",
-        "growth marketing manager",
-        "email marketer",
-        "lifecycle marketer",
-        "demand generation marketer",
-        "b2b marketer",
-        "saas marketer",
-        "marketing manager",
+    return [
+        f'("we are hiring" OR "we\\\'re hiring" OR "I am hiring" OR "I\\\'m hiring") ("content marketer" OR "growth marketer" OR "email marketer" OR "lifecycle marketer" OR "marketing manager") remote after:{cutoff} -India',
+        f'("looking for" OR "need a" OR "know anyone" OR "referral") ("content marketer" OR "growth marketer" OR "demand generation" OR "b2b marketer") remote after:{cutoff} -India',
+        f'site:linkedin.com/posts ("we are hiring" OR "looking for" OR "know anyone" OR "apply here") ("content marketer" OR "growth marketer" OR "marketing manager") after:{cutoff} -India',
+        f'site:x.com ("we are hiring" OR "looking for" OR "apply here") ("content marketer" OR "growth marketer" OR "email marketer") after:{cutoff} -India',
+        f'site:twitter.com ("we are hiring" OR "looking for" OR "apply here") ("content marketer" OR "growth marketer" OR "email marketer") after:{cutoff} -India',
+        f'("DM me" OR "email me" OR "apply here") ("growth marketer" OR "content marketer" OR "marketing manager") remote after:{cutoff} -India',
     ]
-
-    intent_phrases = [
-        "we are hiring",
-        "we're hiring",
-        "I am hiring",
-        "I'm hiring",
-        "looking for",
-        "need a",
-        "know anyone",
-        "referral",
-        "email me",
-        "apply here",
-    ]
-
-    queries = []
-
-    for role in roles:
-        for phrase in intent_phrases:
-            queries.append(f'"{phrase}" "{role}" remote after:{cutoff} -India')
-
-    queries.extend([
-        f'site:linkedin.com/posts ("we are hiring" OR "I am hiring" OR "looking for" OR "know anyone") ("content marketer" OR "growth marketer" OR "lifecycle marketer") after:{cutoff} -India',
-        f'site:linkedin.com/posts ("DM me" OR "email me" OR "apply here") ("marketing manager" OR "growth marketing" OR "content marketing") after:{cutoff} -India',
-        f'site:x.com ("we are hiring" OR "I am hiring" OR "looking for" OR "know anyone") ("content marketer" OR "growth marketer" OR "email marketer") after:{cutoff} -India',
-        f'site:twitter.com ("DM me" OR "email me" OR "apply here") ("marketing manager" OR "lifecycle marketing" OR "demand generation") after:{cutoff} -India',
-    ])
-
-    return queries
 
 
 class SerpApiHiringSignalAdapter:
