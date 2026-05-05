@@ -43,8 +43,6 @@ EXCLUDE_KEYWORDS = [
     "video editor",
     "engineer",
     "developer",
-    "finance",
-    "fp&a",
     "legal",
     "accounting",
     "sdr",
@@ -93,18 +91,19 @@ class Pipeline:
 
         text = f"{raw.title} {raw.body}".lower()
 
-        if any(x in text for x in ["looking for", "need a", "hiring", "seeking"]):
+        if any(x in text for x in ["looking for", "need a", "hiring", "seeking", "dm me", "apply here"]):
             return "informal_hiring_post"
 
         return "warm_outbound_target"
 
     def is_relevant(self, opp: Opportunity) -> bool:
-        text = f"{opp.job_title} {opp.company} {opp.location} {opp.remote_status}".lower()
+        title_text = opp.job_title.lower()
+        full_text = f"{opp.job_title} {opp.company} {opp.location} {opp.remote_status} {opp.notes}".lower()
 
-        if any(x in text for x in EXCLUDE_KEYWORDS):
+        if any(x in title_text for x in EXCLUDE_KEYWORDS):
             return False
 
-        if not any(k in text for k in INCLUDE_KEYWORDS):
+        if not any(k in full_text for k in INCLUDE_KEYWORDS):
             return False
 
         if opp.salary_min_usd is not None and opp.salary_min_usd < 36000:
@@ -132,9 +131,10 @@ class Pipeline:
         clean_job_title = self.clean_title(raw.title)
         company = raw.company or "unknown"
 
-        # FIX: include source in key to avoid collisions
         key = f"{company.lower()}::{clean_job_title.lower()}::{raw.url}::{raw.source}"
         opp_id = hashlib.sha1(key.encode("utf-8")).hexdigest()[:12]
+
+        notes = raw.body[:2000] if raw.body else "generated from MVP pipeline"
 
         return Opportunity(
             id=opp_id,
@@ -159,7 +159,7 @@ class Pipeline:
             eligibility_risk=risk,
             apply_priority=priority,
             recommended_action=action,
-            notes="generated from MVP pipeline",
+            notes=notes,
         )
 
     def dedupe(self, opportunities: list[Opportunity]) -> list[Opportunity]:
