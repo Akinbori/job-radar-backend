@@ -27,6 +27,12 @@ PriorityType = Literal["high", "medium", "low"]
 SalaryConfidence = Literal["high", "medium", "low", "unknown"]
 StatusType = Literal["new", "reviewed", "applied", "contacted", "discarded"]
 
+OutreachStatus = Literal[
+    "direct_outreach_ready",
+    "company_contact_found",
+    "apply_only",
+]
+
 
 class RawItem(BaseModel):
     source: str
@@ -36,8 +42,8 @@ class RawItem(BaseModel):
     body: str = ""
     company: str = "unknown"
     author: Optional[str] = None
-    posted_at: Optional[datetime] = None   # changed
-    date_found: Optional[datetime] = None  # added
+    posted_at: Optional[datetime] = None
+    date_found: Optional[datetime] = None
     location: str = "unknown"
     remote_text: str = "unknown"
     salary_text: Optional[str] = None
@@ -67,6 +73,11 @@ class Opportunity(BaseModel):
     eligibility_risk: str
     apply_priority: PriorityType
     recommended_action: ActionType
+    contact_name: str = "unknown"
+    contact_title: str = "unknown"
+    contact_source: str = "none"
+    contact_url: Optional[HttpUrl] = None
+    outreach_status: OutreachStatus = "apply_only"
     status: StatusType = "new"
     notes: str = ""
 
