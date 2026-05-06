@@ -30,6 +30,7 @@ class Repository:
             payload = opp.model_dump()
             payload["job_url"] = str(payload["job_url"])
             payload["application_url"] = str(payload["application_url"])
+            payload["contact_url"] = str(payload["contact_url"]) if payload.get("contact_url") else None
 
             existing = self.db.execute(
                 select(OpportunityRecord).where(OpportunityRecord.id == opp.id)
@@ -77,6 +78,11 @@ class Repository:
             "eligibility_risk": row.eligibility_risk,
             "apply_priority": row.apply_priority,
             "recommended_action": row.recommended_action,
+            "contact_name": row.contact_name or "unknown",
+            "contact_title": row.contact_title or "unknown",
+            "contact_source": row.contact_source or "none",
+            "contact_url": row.contact_url,
+            "outreach_status": row.outreach_status or "apply_only",
             "status": row.status,
             "notes": row.notes,
         }) for row in rows]
