@@ -159,6 +159,11 @@ class Pipeline:
             eligibility_risk=risk,
             apply_priority=priority,
             recommended_action=action,
+            contact_name="unknown",
+            contact_title="unknown",
+            contact_source="none",
+            contact_url=None,
+            outreach_status="apply_only",
             notes=notes,
         )
 
